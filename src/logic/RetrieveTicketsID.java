@@ -18,8 +18,8 @@ import org.json.JSONArray;
 
 public class RetrieveTicketsID {
 
-   static String folder = "C:\\Users\\miche\\Downloads\\fold";
-   static String projName ="STDCXX";
+   static String folder ="..\\";
+   static String projName ="stdcxx";
    static String git = "git -C ";
    static String exception = "process is null";
    
@@ -55,7 +55,7 @@ public class RetrieveTicketsID {
 	   for (; i < total && i < j; i++) {
            //Iterate through each ticket, considering the committer date 
            String key = issues.getJSONObject(i%1000).get("key").toString();
-           Process p = process(git +folder+"\\"+projName+" log\r\n" + 
+           Process p = process(git +folder+projName+" log\r\n" + 
            		" --pretty=format:'%cd' --grep="+key);
            exception(p);
            BufferedReader stdInput = new BufferedReader(new 
@@ -65,14 +65,12 @@ public class RetrieveTicketsID {
         	   list.add(s);
            }
         }       
-	   
-	   String lowerMonth = list.get(0).substring(5, 8);
+	   String lowerMonth = list.get(list.size()-1).substring(5, 8);
 	   Integer lowerYear = Integer.parseInt(list.get(list.size()-1).substring(21, 25));
 	   String upperMonth = list.get(0).substring(5, 8);
 	   Integer upperYear = Integer.parseInt(list.get(0).substring(21, 25));
 	   
        Date lowerDate = new Date(lowerMonth, list.get(list.size()-1).substring(21, 25));
-       Date upperDate = new Date(upperMonth,list.get(0).substring(21, 25));
        
        actualMonth = lowerMonth;
        
@@ -96,10 +94,6 @@ public class RetrieveTicketsID {
     		   if (actualMonth.equals("Dec")) break;
     	   }
        }
-       
-       dateList.add(upperDate);
-       
-
 	return dateList;
 	   
    }
@@ -112,7 +106,7 @@ public class RetrieveTicketsID {
 	   List<Date> dateList;
 	   int[] count;
 	   StringBuilder sb = new StringBuilder();
-	   String projUrl = "https://github.com/apache/stdcxx";
+	   String projUrl = "https://github.com/apache/"+projName;
 	   Integer j = 0;
 	   Integer i = 0;
 	   Integer totalFixed = 1;
@@ -120,7 +114,7 @@ public class RetrieveTicketsID {
 	   
 	   try (PrintWriter writer = new PrintWriter(file)){	   
 		   sb.append("Date");
-		   sb.append(';');
+		   sb.append(',');
 		   sb.append("NumFixed");
 		   sb.append('\n');
 	      do {
@@ -154,7 +148,7 @@ public class RetrieveTicketsID {
 	         for (; i < totalFixed && i < j; i++) {
 	            //Iterate through each fixed ticket, considering the committer date
 	            String key = issuesFixed.getJSONObject(i%1000).get("key").toString();
-	            Process p = process(git +folder+"\\"+projName+" log\r\n" + 
+	            Process p = process(git +folder+projName+" log\r\n" + 
 	            		" --pretty=format:'%cd' --grep="+key);
 	            exception(p);
 	            
@@ -168,7 +162,7 @@ public class RetrieveTicketsID {
 	            /*
 	             * If the list is empty it means that there isn't a commit for this fixed ticket.
 	             * Otherwise, a commit can have more fixing dates. 
-	             * In this case, it is chosen the first available date, that is the older one.
+	             * In this case, it is chosen the first available date, that is the newest one.
 	             * This is the date in which the ticket has been completely fixed.
 	             */
 	            if (!list.isEmpty()){
@@ -189,7 +183,7 @@ public class RetrieveTicketsID {
 	     	 sb.append(dateList.get(k).getYear());
 	     	 sb.append(" ");
 	     	 sb.append(dateList.get(k).getMonth());
-	     	 sb.append(';');
+	     	 sb.append(',');
 			 sb.append(count[k]);
 			 sb.append('\n');
 	      }
